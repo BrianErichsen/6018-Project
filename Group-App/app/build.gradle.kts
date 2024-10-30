@@ -96,6 +96,8 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.2")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.2")
     implementation("io.ktor:ktor-client-resources:2.3.2")
+    implementation("io.ktor:ktor-client-json:2.3.2")
+    implementation("io.ktor:ktor-client-logging:2.3.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
 

@@ -9,6 +9,9 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+
 import kotlinx.serialization.json.Json
 
 @Serializable
@@ -35,13 +38,21 @@ class ApiService {
         }
         install(Resources)
     }
-
-    suspend fun uploadImage(request: ImageUploadRequest): DrawingResponse {
-        return httpClient.post("$URL_BASE/images/upload") {
+    // 修改后的 uploadImage 方法，返回 Boolean 表示上传成功与否
+    suspend fun uploadImage(request: ImageUploadRequest): Boolean {
+        val response: HttpResponse = httpClient.post("http://10.0.2.2:8080/images/upload") { // 确保路径正确
             contentType(ContentType.Application.Json)
             setBody(request)
-        }.body()
+        }
+
+        // 打印响应文本以调试
+        val responseText = response.bodyAsText()
+        println("Server response: $responseText")
+
+        // 检查状态码，如果是 201 Created 则表示成功
+        return response.status == HttpStatusCode.Created
     }
+
 
     suspend fun fetchSharedImages(): List<DrawingResponse> {
         return httpClient.get("$URL_BASE/images/shared").body()

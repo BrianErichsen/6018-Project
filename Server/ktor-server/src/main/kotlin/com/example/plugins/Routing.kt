@@ -31,16 +31,15 @@ fun Application.configureRouting() {
         // Upload Image Endpoint
         post("/images/upload") {
             val request = call.receive<ImageUploadRequest>()
+            println("Received upload request: $request")
             var imageId: Int? = null
 
             transaction {
-                // Insert user if not exists
                 Users.insertIgnore {
                     it[id] = request.userId
                     it[email] = "example_user@gmail.com" // Replace with actual user email
                 }
 
-                // Insert image
                 imageId = Drawings.insertAndGetId {
                     it[userId] = request.userId
                     it[imageUrl] = request.imageUrl
@@ -48,8 +47,10 @@ fun Application.configureRouting() {
                 }.value
             }
 
-            call.respond(HttpStatusCode.Created, "Image uploaded with ID: $imageId")
+            println("Image uploaded with ID: $imageId")
+            call.respond(HttpStatusCode.Created, mapOf("message" to "Image uploaded", "imageId" to imageId))
         }
+
 
         // Fetch Shared Images Endpoint
         get("/images/shared") {

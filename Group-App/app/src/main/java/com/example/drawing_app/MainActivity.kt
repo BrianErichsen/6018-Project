@@ -13,6 +13,8 @@ import com.example.drawing_app.network.ApiViewModelFactory
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
     private val drawingViewModel: DrawingViewModel by viewModels {
@@ -31,23 +33,56 @@ class MainActivity : AppCompatActivity() {
         shakeListener = ShakeListener(this) {
             onShakeDetected()
         }
-       setContent {
-           val navController = rememberNavController()
-           Surface {
-               NavGraph(navController = navController, viewModel = drawingViewModel, apiViewModel = apiViewModel,
-                   onShakeCallback = {
-                   callback -> onShakeCallback = callback
-               }, onSensorEnabledChanged = { enabled ->
-                   toggleShakeListener(enabled)
-               })
-           }
-       }
+        setContent {
+            val navController = rememberNavController()
+            Surface {
+                NavGraph(navController = navController, viewModel = drawingViewModel, apiViewModel = apiViewModel,
+                    onShakeCallback = { callback -> onShakeCallback = callback },
+                    onSensorEnabledChanged = { enabled -> toggleShakeListener(enabled) }
+                )
+            }
+        }
+
+        // 示例：上传图片
+        val imageData = ByteArray(0) // 您的图片数据
+        uploadImage(imageData)
+
+        // 示例：获取用户的共享图片列表
+        fetchUserImages()
+    }
+
+    private fun uploadImage(imageData: ByteArray) {
+        apiViewModel.uploadImage(
+            imageData,
+            onSuccess = {
+                // 上传成功后的处理逻辑
+                println("Image uploaded successfully")
+            },
+            onFailure = {
+                // 上传失败后的处理逻辑
+                println("Image upload failed")
+            }
+        )
+    }
+
+    private fun fetchUserImages() {
+        apiViewModel.fetchUserImages(
+            onSuccess = { images ->
+                // 成功获取用户图片后的处理逻辑
+                images.forEach { println("User image: $it") }
+            },
+            onFailure = {
+                // 获取图片失败后的处理逻辑
+                println("Failed to fetch user images")
+            }
+        )
     }
 
     override fun onResume() {
         super.onResume()
         shakeListener.start()
     }
+
     override fun onPause() {
         super.onPause()
         shakeListener.stop()
@@ -64,4 +99,4 @@ class MainActivity : AppCompatActivity() {
             shakeListener.start()
         }
     }
-}// end of MainActivity implementation
+}

@@ -282,9 +282,19 @@ fun DrawingCanvas(navController: NavController, drawingId: Int?, viewModel: Draw
         // Upload to Server Button
         Button(
             onClick = {
-                filePath?.let {
+                filePath?.let { path ->
                     scope.launch {
-                        apiViewModel.uploadImage("testUser123", it) // Replace with actual user ID
+                        val file = File(path) // 使用 filePath 生成 File 对象
+                        if (file.exists()) {
+                            val imageData = file.readBytes() // 读取文件为 ByteArray
+                            apiViewModel.uploadImage(imageData, onSuccess = {
+                                // 上传成功后的操作
+                            }, onFailure = {
+                                // 上传失败后的操作
+                            })
+                        } else {
+                            println("File does not exist at path: $path")
+                        }
                     }
                 }
             },
